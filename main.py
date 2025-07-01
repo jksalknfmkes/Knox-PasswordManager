@@ -81,6 +81,8 @@ while True:
         commands.del_pass()
     elif command == "noxkey":
         commands.noxkey()
+    elif command == "noxkey_generation":
+        commands.noxkey_generation()
     elif command == "exit":
         print("\033[91mВыход...\033[0m")
         break

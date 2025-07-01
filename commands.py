@@ -6,7 +6,7 @@ import base64
 import hashlib
 import pwinput
 from cryptography.fernet import Fernet
-from crypto_utils import decrypt_key_vault
+from crypto_utils import decrypt_key_vault, create_master_key
 from check_pass import check_pwned_password, checkpass_reliability
 
 def get_data_dir():
@@ -259,18 +259,25 @@ def noxdelete_profile():
                         break
                     if os.path.exists(system_file):
                         try:
-                            os.remove (system_file)
-                            print("\033[92mДанные файла sys_status.json успешно удалены!\033[0m")
+                            data = [
+                                   {"service": "pwned_check", "status": "on"},
+                                   {"service": "reliability_check", "status": "on"}
+                                ]
+                            with open(system_file, 'w') as f:
+                                f.write(json.dumps(data, indent=4))
+                            print("\033[92mДанные файла sys_status.json успешно перезаписаны!\033[0m")
                         except OSError:
-                            print("\033[91mНе удалось удалить файл sys_status.json, программа не будет завершена.\nУбедитесь, что он не используется и повторите попытку.\033[0m")
+                            print("\033[91mНе удалось перезаписать файл sys_status.json, программа не будет завершена.\nУбедитесь, что он не используется и повторите попытку.\033[0m")
                             break
                         if os.path.exists(crypto_file):
                             try:
-                                os.remove (system_file)
+                                with open(crypto_file, 'r+') as f:
+                                    f.seek(0)
+                                    f.truncate(0)
                                 print("\033[92mДанные файла key.enc успешно удалены!\033[0m")
                                 sys.exit(0)
                             except OSError:
-                                print("\033[91mНе удалось удалить файл key.enc, программа не будет завершена.\nУбедитесь, что он не используется и повторите попытку.\033[0m")
+                                print("\033[91mНе удалось удалить данные файла key.enc, программа не будет завершена.\nУбедитесь, что он не используется и повторите попытку.\033[0m")
                                 break
                         else:
                             print("\033[91mФайл key.enc не найден, удаление продолжится.\033[0m")
@@ -540,3 +547,33 @@ def noxkey():
     key_str = base64.b64encode(key_vault).decode('utf-8')
     print(f"\033[91mВаш ключ шифрования {key_str}.\033[0m")
     print(f"\033[93mПримечание: Этот ключ нужен для восстановления доступа. Не делитесь им!\033[0m")
+
+def noxkey_generation():
+    with open(users_file, 'r') as f:  
+        users = json.load(f)
+    i = 1
+    while i:
+        if i <= 5:
+            print("Введите пароль, чтобы сгенерировать ключ:")
+            password = pwinput.pwinput(prompt="\033[91m>> \033[0m", mask='*')
+            password_hash = hash_password(password)
+            if password_hash == users[0]['password_hash']:
+                if os.path.getsize(crypto_file) == 0:
+                    master_key = create_master_key(password)
+                    key_vault = Fernet.generate_key()
+                    cipher1 = Fernet(master_key)
+                    key_vault_encrypt = cipher1.encrypt(key_vault)
+                    with open(crypto_file, 'wb') as f:
+                        f.write(key_vault_encrypt)
+                    print("\033[92mКлюч шифрования сгенерирован и успешно сохранен в файл key.enc.\033[0m")
+                    break
+                else:
+                    print("\033[91mВ файле key.enc записаны какие-то данные, удалите их и вызовите команду повторно.\033[0m")
+                    break
+            else:
+                print("\033[91mНеверный пароль! Повторите ввод.\033[0m")
+                i += 1
+                continue
+        else:
+            print("\033[91mВы превысили количество неудачных попыток! Попробуйте позже.\033[0m")
+            sys.exit(0)

@@ -53,7 +53,7 @@ def registration():
                     users.append(new_user)
                     with open(users_file, 'w') as f:  
                         json.dump(users, f, indent=4)
-                    print(f"\033[95mПользователь {username} успещно зарегестрирован.\033[0m")
+                    print(f"\033[95mПользователь {username} успешно зарегестрирован.\033[0m")
                     break  
                 elif password != password_confirm:
                     print("\033[91mПароли не совпадают, повторите ввод.\033[0m")
@@ -67,10 +67,29 @@ def registration():
         with open(users_file, 'r') as f:  
             users = json.load(f)
         master_key = create_master_key(password)
-        key_vault = Fernet.generate_key()
-        cipher1 = Fernet(master_key)
-        key_vault_encrypt = cipher1.encrypt(key_vault)
-        with open(crypto_file, 'wb') as f:
+        if os.path.getsize(crypto_file) == 0:
+            key_vault = Fernet.generate_key()
+            cipher1 = Fernet(master_key)
+            key_vault_encrypt = cipher1.encrypt(key_vault)
+            with open(crypto_file, 'wb') as f:
                 f.write(key_vault_encrypt)
+        else:
+            while True:
+                print("\033[91mВ файле key.enc записаны какие-то данные, хотите их перезаписать?(y|n)\033[0m")
+                response1 = input("\033[91m>> \033[0m").lower()
+                if response1 == 'y':
+                    key_vault = Fernet.generate_key()
+                    cipher1 = Fernet(master_key)
+                    key_vault_encrypt = cipher1.encrypt(key_vault)
+                    with open(crypto_file, 'wb') as f:
+                        f.write(key_vault_encrypt)
+                    print("\033[92mКлюч шифрования сгенерирован и успешно сохранен в файл key.enc.\033[0m")
+                    break
+                elif response1 == 'n':
+                    print("\033[91mКлюч шифрования не будет сгенерирован.\nОчистите файл и сгенерируйте ключ командой noxkey_generation.\033[0m")
+                    break
+                else:
+                    print("\033[91mВведите только 'y' или 'n'.\033[0m")
+                    continue
         print(f"\n\033[92mДобро пожаловать, {username}!\n\nВведите команду или наберите 'help' для получения списка доступных команд.\n\033[0m")
         break
