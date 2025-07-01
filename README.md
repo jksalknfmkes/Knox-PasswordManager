@@ -1,6 +1,9 @@
 ==Knox==         v1.0                       [RU Version]
 
-Knox - разработан для того, чтобы вы могли безопасно хранить свои личные данные. Все что вы туда сохраняете, хранится локально только на вашем устройстве.
+Knox - это защищенный автономный менеджер паролей, созданный на основе Python и шифрования Fernet.Ваши пароли никогда не покинут ваше устройство. Knox идеально подходит для пользователей, ориентированных на конфиденциальность и желающих получить полный контроль над своей конфиденциальной информацией - без облака, без отслеживания и без серверов.
+
+##Demo
+![Knox demo](media/demo.gif)
 
 Knox использует симметричное шифрование класса Fernet, для хранения ваших данные. Все ваши записи хранятся в файле knox_data\vault.json  в зашифрованном виде. 
 Ключ шифрования, с помощью которого вы можете работать со своим хранилищем, тоже не хранится в открытом виде, он шифруется с помощью матер ключа, который создается на основе вашего пароля(для авторизации в Knox) и соли(случайного значения, которое создается при регистрации). Каждый раз когда вы будете работать с хранилищем, knox будет создавать этот мастер ключ заново и расшифровывать ключ от хранилища, тем самым ключ в незашифрованном виде хранится только в памяти программы в момент выполнения команд. 
@@ -42,6 +45,9 @@ Knox использует симметричное шифрование клас
 Как вы могли понять ключ ко всему это ваш пароль для авторизации в knox. Позаботьтесь о том чтобы он был надежным, лучшее место для его хранения - это ваша память.)
 Приятного пользования! 
 
+## Как запустить:
+\start\knox.exex
+
 ==Обратная связь==
 
 Буду рад вашим отзывам!  
@@ -56,10 +62,9 @@ Knox использует симметричное шифрование клас
 
 ==Knox==         v1.0                            [EN Version]
 
-Knox - designed to securely store your personal data. Everything you save there is stored locally on your device only.
+Knox - secure offline password manager built with Python and Fernet encryption.Your passwords never leave your device. Knox is ideal for privacy-focused users who want full control over their sensitive information — with no cloud, no tracking, and no servers.
 
 Knox uses symmetric Fernet-class encryption to store your data. All your records are kept in the knox_data/vault.json file in an encrypted form.
-
 The encryption key, which you use to work with your vault, is also not stored in plain text; it is encrypted with a master key created based on your password (for Knox authorization) and a salt (a random value generated during registration). Each time you work with the vault, Knox will regenerate this master key and decrypt the vault key, meaning the key remains unencrypted only in the program's memory during command execution.
 
 Knox does not require an internet connection, with one exception: when it checks a password for a leak before adding it to the vault. Knox checks the password for leaks via the haveibeenpwned service (you can learn more at https://haveibeenpwned.com/API/v3#PwnedPasswords).
@@ -100,6 +105,9 @@ Commands that interact with the vault require entering your password.
        As you may have gathered, the key to everything is your Knox authorization password. Make sure it’s strong—the best place to store it is your memory!
 
 Enjoy using Knox!
+
+## How to Run:
+\start\knox.exex
 
 ==Feedback==
 
